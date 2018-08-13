@@ -11,8 +11,9 @@ from rollout import ROLLOUT
 import vocab_utils
 
 #########################################################################################
-PRE_EPOCH_NUM_generator = 120  # supervised (maximum likelihood estimation) epochs
-PRE_EPOCH_NUM_discriminator = 50
+PRE_EPOCH_NUM_generator = 20  # supervised (maximum likelihood estimation) epochs
+PRE_EPOCH_NUM_discriminator = 5
+TOTAL_BATCH = 10
 g_lrn = 0.01
 d_lrn = 0.0001
 
@@ -38,7 +39,6 @@ dis_batch_size = 64
 #########################################################################################
 #  Basic Training Parameters
 #########################################################################################
-TOTAL_BATCH = 200
 train_dir = "./"
 log = open('save/experiment-log.txt', 'w')
 source_file = "data/train.txt"
@@ -84,6 +84,17 @@ def pre_train_epoch(sess, trainable_model, data_loader):
         supervised_g_losses.append(g_loss)
 
     return np.mean(supervised_g_losses)
+
+
+def transform_file(negative_file, wordVocab, out_file):
+    out_op = open(out_file, "w")
+    for line in open(negative_file):
+        line = line.strip("\n").split(" ")
+        wordList = []
+        for id in line:
+            wordList.append(wordVocab.id2word[int(id)])
+        out_op.write(" ".join(wordList) + "\n")
+    out_op.close()
 
 
 def main():
@@ -208,8 +219,10 @@ def main():
                              generator,
                              BATCH_SIZE,
                              generated_num,
-                             out_negative_file + str(total_batch) + ".txt")
-            dis_data_loader.load_train_data(positive_file, out_negative_file + str(total_batch) + ".txt")
+                             negative_file)
+            out_file = out_negative_file + str(total_batch) + ".txt"
+            transform_file(negative_file, wordVocab, out_file)
+            dis_data_loader.load_train_data(positive_file, negative_file)
             for _ in range(3):
                 dis_data_loader.reset_pointer()
                 for it in xrange(dis_data_loader.num_batch):
