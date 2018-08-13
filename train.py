@@ -220,8 +220,6 @@ def main():
                              BATCH_SIZE,
                              generated_num,
                              negative_file)
-            out_file = out_negative_file + str(total_batch) + ".txt"
-            transform_file(negative_file, wordVocab, out_file)
             dis_data_loader.load_train_data(positive_file, negative_file)
             for _ in range(3):
                 dis_data_loader.reset_pointer()
@@ -233,6 +231,9 @@ def main():
                         discriminator.dropout_keep_prob: dis_dropout_keep_prob
                     }
                     _ = sess.run(discriminator.train_op, feed)
+
+        out_file = out_negative_file + str(total_batch) + ".txt"
+        transform_file(negative_file, wordVocab, out_file)
 
     log.close()
 
