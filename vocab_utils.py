@@ -6,10 +6,17 @@ import re
 import os
 
 
+def check_contain_chinese(check_str):
+    for ch in check_str.decode('utf-8'):
+        if u'\u4e00' <= ch <= u'\u9fff':
+            return True
+    return False
+
+
 # import math
 class Vocab(object):
     def fromText_format3(self, train_dir, wordvec_path):
-        vec_path = train_dir+wordvec_path
+        vec_path = train_dir + wordvec_path
         self.word2id = {}
         self.id2word = {}
 
@@ -19,6 +26,7 @@ class Vocab(object):
             line = line.strip()
             parts = line.split(' ')
             word = parts[0]
+            if not check_contain_chinese(word): continue
             self.word_dim = len(parts[1:])
             if self.word_dim < 128: continue
             vector = np.array(parts[1:], dtype='float32')
