@@ -3,7 +3,6 @@ import jieba
 
 
 def pad_sentences(sentence, sequence_length, padding_word="<PAD/>"):
-    padded_sentences = []
     if len(sentence) < sequence_length:
         num_padding = sequence_length - len(sentence)
         new_sentence = sentence + [padding_word] * num_padding
@@ -23,13 +22,27 @@ class Gen_Data_loader():
         self.batch_size = batch_size
         self.token_stream = []
 
-    def transform_positive_file(self, srcfile, positive_file, wordVocab, SEQ_LENGTH):
+    # def transform_positive_file(self, srcfile, positive_file, wordVocab, SEQ_LENGTH):
+    #     out_op = open(positive_file, "w")
+    #     for line in open(srcfile):
+    #         line = line.strip("\n").split("\t")
+    #         sentence = line[0]
+    #         sent = jieba.lcut(sentence)
+    #         sent = [s.encode("utf8") for s in sent]
+    #         padded_sentence = pad_sentences(sent, SEQ_LENGTH)
+    #         sentence_index = build_input_data(padded_sentence, wordVocab.word2id)
+    #         out_op.write(" ".join(sentence_index) + "\n")
+    #     out_op.close()
+
+    def transform_positive_file_2(self, srcfile, positive_file, wordVocab, SEQ_LENGTH):
         out_op = open(positive_file, "w")
         for line in open(srcfile):
+            line=line.decode("utf8")
             line = line.strip("\n").split("\t")
             sentence = line[0]
-            sent = jieba.lcut(sentence)
-            sent = [s.encode("utf8") for s in sent]
+            sent = [s.encode("utf8") for s in sentence]
+            # sent = jieba.lcut(sentence)
+            # sent = [s.encode("utf8") for s in sent]
             padded_sentence = pad_sentences(sent, SEQ_LENGTH)
             sentence_index = build_input_data(padded_sentence, wordVocab.word2id)
             out_op.write(" ".join(sentence_index) + "\n")

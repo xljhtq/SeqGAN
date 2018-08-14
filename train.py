@@ -106,6 +106,7 @@ def main():
     wordVocab = vocab_utils.Vocab()
     wordVocab.fromText_format3(train_dir, "data/wordvec.vec")
     vocab_size = wordVocab.vocab_size
+    print ("vocab_size: ", vocab_size)
     # vocab_size=5000
 
     dis_data_loader = Dis_dataloader(BATCH_SIZE)
@@ -113,8 +114,8 @@ def main():
     likelihood_data_loader = Gen_Data_loader(BATCH_SIZE)  # For testing
 
     # todo:  print ("starting generating positive samples...")
-    gen_data_loader.transform_positive_file(train_dir + source_file, train_dir + positive_file, wordVocab,
-                                            SEQ_LENGTH)
+    gen_data_loader.transform_positive_file_2(train_dir + source_file, train_dir + positive_file, wordVocab,
+                                              SEQ_LENGTH)
     gen_data_loader.create_batches(train_dir + positive_file)
 
     generator = Generator(wordVocab,

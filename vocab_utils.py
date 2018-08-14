@@ -7,9 +7,10 @@ import os
 
 
 def check_contain_chinese(check_str):
-    for ch in check_str.decode('utf-8'):
-        if u'\u4e00' <= ch <= u'\u9fff':
-            return True
+    if len(check_str)==3:
+        for ch in check_str.decode('utf-8'):
+            if u'\u4e00' <= ch <= u'\u9fff':
+                return True
     return False
 
 
