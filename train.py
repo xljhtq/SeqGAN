@@ -1,4 +1,6 @@
 ## encoding=utf8
+import sys
+
 import numpy as np
 import tensorflow as tf
 import random
@@ -11,8 +13,11 @@ from rollout import ROLLOUT
 import vocab_utils
 
 #########################################################################################
-PRE_EPOCH_NUM_generator = 5  # supervised (maximum likelihood estimation) epochs
-PRE_EPOCH_NUM_discriminator = 5
+PRE_EPOCH_NUM_generator = 10  # supervised (maximum likelihood estimation) epochs
+PRE_EPOCH_NUM_discriminator = 20
+BATCH_SIZE = 6
+generated_num = 42
+
 TOTAL_BATCH = 10
 g_lrn = 0.01
 d_lrn = 0.0001
@@ -24,7 +29,6 @@ HIDDEN_DIM = 200  # hidden state dimension of lstm cell
 SEQ_LENGTH = 20  # sequence length
 START_TOKEN = 0
 SEED = 88
-BATCH_SIZE = 64
 
 #########################################################################################
 #  Discriminator  Hyper-parameters
@@ -34,7 +38,6 @@ dis_filter_sizes = [2, 3, 5]
 dis_num_filters = [100, 100, 100]
 dis_dropout_keep_prob = 0.75
 dis_l2_reg_lambda = 0.01
-dis_batch_size = 64
 
 #########################################################################################
 #  Basic Training Parameters
@@ -46,7 +49,6 @@ positive_file = 'data/positive_data.txt'
 negative_file = 'data/negative_data.txt'  ## generator model 生成的fake data
 out_negative_file = 'data/negative_data_'  ## 输出观察的negative_data
 eval_file = 'data/eval_data.txt'  ## generator model 生成的每次训练后的test集
-generated_num = 30000
 
 
 def generate_samples(sess, trainable_model, batch_size, generated_num, output_file):
@@ -149,6 +151,7 @@ def main():
         if epoch % 5 == 0:
             buffer = 'epoch:\t' + str(epoch) + '\tloss:\t' + str(loss)
             print (buffer)
+            sys.stdout.flush()
             log.write(buffer)
             # generate_samples(sess,
             #                  generator,
@@ -201,6 +204,7 @@ def main():
         if total_batch % 10 == 0 or total_batch == TOTAL_BATCH - 1:
             buffer = 'epoch:\t' + str(total_batch) + '\tg_loss:\t' + str(g_loss) + '\n'
             print (buffer)
+            sys.stdout.flush()
             log.write(buffer)
         #     generate_samples(sess,
         #                      generator,
