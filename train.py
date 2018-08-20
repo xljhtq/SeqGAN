@@ -11,11 +11,11 @@ from rollout import ROLLOUT
 import vocab_utils
 
 #########################################################################################
-PRE_EPOCH_NUM_generator = 5  # supervised (maximum likelihood estimation) epochs
-PRE_EPOCH_NUM_discriminator = 10
-BATCH_SIZE = 30
-need_generated_samples = 10000
-TOTAL_BATCH = 10
+PRE_EPOCH_NUM_generator = 30  # supervised (maximum likelihood estimation) epochs
+PRE_EPOCH_NUM_discriminator = 20
+BATCH_SIZE = 10
+need_generated_samples = 200000
+TOTAL_BATCH = 15
 
 g_lrn = 0.01
 d_lrn = 0.0001
@@ -41,7 +41,6 @@ dis_l2_reg_lambda = 0.01
 #########################################################################################
 train_dir = "./"
 log = open('data/experiment-log.txt', 'w')
-source_file = "data/train.txt"
 positive_file = 'data/positive_data.txt'
 negative_file = 'data/negative_data.txt'  ## generator model 生成的fake data
 out_negative_file = 'data/negative_data_'  ## 输出观察的negative_data
@@ -96,7 +95,7 @@ def transform_file(negative_file, wordVocab, out_file):
     out_op.close()
 
 
-def main():
+def main(source_file):
     random.seed(SEED)
     np.random.seed(SEED)
     assert START_TOKEN == 0
@@ -236,10 +235,16 @@ def main():
                      BATCH_SIZE,
                      need_generated_samples,
                      negative_file)
-    transform_file(negative_file, wordVocab, out_negative_file + str(generated_num))
+    transform_file(negative_file, wordVocab, out_negative_file + str(generated_num)+".txt")
 
     log.close()
 
 
 if __name__ == '__main__':
-    main()
+    source_file = ["data/1.txt", "data/2.txt", "data/3.txt",
+                   "data/4.txt", "data/5.txt", "data/6.txt",
+                   "data/7.txt", "data/8.txt", "data/9.txt",
+                   "data/10.txt", "data/11.txt"]
+    for file in source_file:
+        print (file)
+        main(file)
