@@ -38,8 +38,9 @@ class Gen_Data_loader():
         out_op = open(positive_file, "w")
         for cnt, line in enumerate(open(srcfile)):
             line = line.decode("utf8")
-            line = line.strip("\n").split("\t")
+            line = line.strip().strip("\n").split("\t")
             sentence = line[0]
+            if not sentence: continue
             sent = [s.encode("utf8") for s in sentence]
             padded_sentence = pad_sentences(sent, SEQ_LENGTH)
             sentence_index = build_input_data(padded_sentence, wordVocab.word2id)

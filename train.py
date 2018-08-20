@@ -12,10 +12,10 @@ import vocab_utils
 
 #########################################################################################
 PRE_EPOCH_NUM_generator = 30  # supervised (maximum likelihood estimation) epochs
-PRE_EPOCH_NUM_discriminator = 5
+PRE_EPOCH_NUM_discriminator = 30
 BATCH_SIZE = 10
-need_generated_samples = 2000
-TOTAL_BATCH = 5
+need_generated_samples = 200000
+TOTAL_BATCH = 20
 
 g_lrn = 0.01
 d_lrn = 0.0001
