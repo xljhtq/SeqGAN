@@ -14,7 +14,7 @@ import vocab_utils
 PRE_EPOCH_NUM_generator = 30  # supervised (maximum likelihood estimation) epochs
 PRE_EPOCH_NUM_discriminator = 5
 BATCH_SIZE = 10
-need_generated_samples = 200000
+need_generated_samples = 2000
 TOTAL_BATCH = 5
 
 g_lrn = 0.01
@@ -96,6 +96,7 @@ def transform_file(negative_file, wordVocab, out_file):
 
 
 def main(source_file, wordVocab, vocab_size):
+    tf.reset_default_graph()
     random.seed(SEED)
     np.random.seed(SEED)
     assert START_TOKEN == 0
@@ -112,7 +113,7 @@ def main(source_file, wordVocab, vocab_size):
     print ("generated_num: ", generated_num)
     gen_data_loader.create_batches(train_dir + positive_file)
 
-    with tf.variable_scope("Train" + source_file, reuse=None):
+    with tf.variable_scope("Train", reuse=None):
         generator = Generator(wordVocab,
                               vocab_size,
                               BATCH_SIZE,
@@ -178,7 +179,7 @@ def main(source_file, wordVocab, vocab_size):
                 }
                 _ = sess.run(discriminator.train_op, feed)
 
-    with tf.variable_scope("Train" + source_file, reuse=None):
+    with tf.variable_scope("Train", reuse=None):
         g_beta = ROLLOUT(generator, 0.8)  ## 这是表示 g_beta
 
     # todo:  3.############## Adversarial Training ##############
@@ -232,8 +233,6 @@ def main(source_file, wordVocab, vocab_size):
                      need_generated_samples,
                      negative_file)
     transform_file(negative_file, wordVocab, out_negative_file + str(generated_num) + ".txt")
-
-    log.close()
 
 
 if __name__ == '__main__':
