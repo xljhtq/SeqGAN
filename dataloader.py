@@ -36,17 +36,16 @@ class Gen_Data_loader():
 
     def transform_positive_file_2(self, srcfile, positive_file, wordVocab, SEQ_LENGTH):
         out_op = open(positive_file, "w")
-        for line in open(srcfile):
-            line=line.decode("utf8")
+        for cnt, line in enumerate(open(srcfile)):
+            line = line.decode("utf8")
             line = line.strip("\n").split("\t")
             sentence = line[0]
             sent = [s.encode("utf8") for s in sentence]
-            # sent = jieba.lcut(sentence)
-            # sent = [s.encode("utf8") for s in sent]
             padded_sentence = pad_sentences(sent, SEQ_LENGTH)
             sentence_index = build_input_data(padded_sentence, wordVocab.word2id)
             out_op.write(" ".join(sentence_index) + "\n")
         out_op.close()
+        return cnt + 1
 
     def create_batches(self, data_file):
         self.token_stream = []

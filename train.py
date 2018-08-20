@@ -8,20 +8,17 @@ from dataloader import Gen_Data_loader, Dis_dataloader
 from generator import Generator
 from discriminator import Discriminator
 from rollout import ROLLOUT
-# from target_lstm import TARGET_LSTM
-# import cPickle
 import vocab_utils
 
 #########################################################################################
-PRE_EPOCH_NUM_generator = 10  # supervised (maximum likelihood estimation) epochs
-PRE_EPOCH_NUM_discriminator = 20
-BATCH_SIZE = 6
-generated_num = 42
-
+PRE_EPOCH_NUM_generator = 5  # supervised (maximum likelihood estimation) epochs
+PRE_EPOCH_NUM_discriminator = 10
+BATCH_SIZE = 30
+need_generated_samples = 10000
 TOTAL_BATCH = 10
+
 g_lrn = 0.01
 d_lrn = 0.0001
-
 #  Generator  Hyper-parameters
 ######################################################################################
 EMB_DIM = 128  # embedding dimension
@@ -109,15 +106,17 @@ def main():
     wordVocab.fromText_format3(train_dir, "data/wordvec.vec")
     vocab_size = wordVocab.vocab_size
     print ("vocab_size: ", vocab_size)
-    # vocab_size=5000
 
     dis_data_loader = Dis_dataloader(BATCH_SIZE)
     gen_data_loader = Gen_Data_loader(BATCH_SIZE)
     likelihood_data_loader = Gen_Data_loader(BATCH_SIZE)  # For testing
 
     # todo:  print ("starting generating positive samples...")
-    gen_data_loader.transform_positive_file_2(train_dir + source_file, train_dir + positive_file, wordVocab,
-                                              SEQ_LENGTH)
+    generated_num = gen_data_loader.transform_positive_file_2(train_dir + source_file,
+                                                              train_dir + positive_file,
+                                                              wordVocab,
+                                                              SEQ_LENGTH)
+    print ("generated_num: ", generated_num)
     gen_data_loader.create_batches(train_dir + positive_file)
 
     generator = Generator(wordVocab,
@@ -206,18 +205,7 @@ def main():
             print (buffer)
             sys.stdout.flush()
             log.write(buffer)
-        #     generate_samples(sess,
-        #                      generator,
-        #                      BATCH_SIZE,
-        #                      generated_num,
-        #                      eval_file)
-        #     likelihood_data_loader.create_batches(eval_file)
-        #     test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
-        #     buffer = 'epoch:\t' + str(total_batch) + '\tnll:\t' + str(test_loss) + '\n'
-        #     print 'total_batch: ', total_batch, 'test_loss: ', test_loss
-        #     log.write(buffer)
 
-        # Update roll-out parameters
         g_beta.update_params()
 
         # todo: Train the discriminator
@@ -239,8 +227,16 @@ def main():
                     }
                     _ = sess.run(discriminator.train_op, feed)
 
-        out_file = out_negative_file + str(total_batch) + ".txt"
-        transform_file(negative_file, wordVocab, out_file)
+        if total_batch % 10 == 0 or total_batch == TOTAL_BATCH - 1:
+            out_file = out_negative_file + str(total_batch) + ".txt"
+            transform_file(negative_file, wordVocab, out_file)
+
+    generate_samples(sess,
+                     generator,
+                     BATCH_SIZE,
+                     need_generated_samples,
+                     negative_file)
+    transform_file(negative_file, wordVocab, out_negative_file + str(generated_num))
 
     log.close()
 
