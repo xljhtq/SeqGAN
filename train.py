@@ -95,16 +95,10 @@ def transform_file(negative_file, wordVocab, out_file):
     out_op.close()
 
 
-def main(source_file):
+def main(source_file, wordVocab, vocab_size):
     random.seed(SEED)
     np.random.seed(SEED)
     assert START_TOKEN == 0
-
-    print ("start loading vocab...")
-    wordVocab = vocab_utils.Vocab()
-    wordVocab.fromText_format3(train_dir, "data/wordvec.vec")
-    vocab_size = wordVocab.vocab_size
-    print ("vocab_size: ", vocab_size)
 
     dis_data_loader = Dis_dataloader(BATCH_SIZE)
     gen_data_loader = Gen_Data_loader(BATCH_SIZE)
@@ -118,23 +112,24 @@ def main(source_file):
     print ("generated_num: ", generated_num)
     gen_data_loader.create_batches(train_dir + positive_file)
 
-    generator = Generator(wordVocab,
-                          vocab_size,
-                          BATCH_SIZE,
-                          EMB_DIM,
-                          HIDDEN_DIM,
-                          SEQ_LENGTH,
-                          START_TOKEN,
-                          learning_rate=g_lrn)
+    with tf.variable_scope("Train", reuse=None):
+        generator = Generator(wordVocab,
+                              vocab_size,
+                              BATCH_SIZE,
+                              EMB_DIM,
+                              HIDDEN_DIM,
+                              SEQ_LENGTH,
+                              START_TOKEN,
+                              learning_rate=g_lrn)
 
-    discriminator = Discriminator(word_vocab=wordVocab,
-                                  sequence_length=SEQ_LENGTH,
-                                  num_classes=2,
-                                  embedding_size=dis_embedding_dim,
-                                  filter_sizes=dis_filter_sizes,
-                                  num_filters=dis_num_filters,
-                                  l2_reg_lambda=dis_l2_reg_lambda,
-                                  learning_rate=d_lrn)
+        discriminator = Discriminator(word_vocab=wordVocab,
+                                      sequence_length=SEQ_LENGTH,
+                                      num_classes=2,
+                                      embedding_size=dis_embedding_dim,
+                                      filter_sizes=dis_filter_sizes,
+                                      num_filters=dis_num_filters,
+                                      l2_reg_lambda=dis_l2_reg_lambda,
+                                      learning_rate=d_lrn)
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
@@ -183,7 +178,8 @@ def main(source_file):
                 }
                 _ = sess.run(discriminator.train_op, feed)
 
-    g_beta = ROLLOUT(generator, 0.8)  ## 这是表示 g_beta
+    with tf.variable_scope("Train", reuse=None):
+        g_beta = ROLLOUT(generator, 0.8)  ## 这是表示 g_beta
 
     # todo:  3.############## Adversarial Training ##############
     print '#########################################################################'
@@ -235,7 +231,7 @@ def main(source_file):
                      BATCH_SIZE,
                      need_generated_samples,
                      negative_file)
-    transform_file(negative_file, wordVocab, out_negative_file + str(generated_num)+".txt")
+    transform_file(negative_file, wordVocab, out_negative_file + str(generated_num) + ".txt")
 
     log.close()
 
@@ -245,6 +241,12 @@ if __name__ == '__main__':
                    "data/4.txt", "data/5.txt", "data/6.txt",
                    "data/7.txt", "data/8.txt", "data/9.txt",
                    "data/10.txt", "data/11.txt"]
+    print ("start loading vocab...")
+    wordVocab = vocab_utils.Vocab()
+    wordVocab.fromText_format3(train_dir, "data/wordvec.vec")
+    vocab_size = wordVocab.vocab_size
+    print ("vocab_size: ", vocab_size)
+
     for file in source_file:
         print (file)
-        main(file)
+        main(file, wordVocab, vocab_size)
