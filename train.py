@@ -12,10 +12,10 @@ import vocab_utils
 
 #########################################################################################
 PRE_EPOCH_NUM_generator = 30  # supervised (maximum likelihood estimation) epochs
-PRE_EPOCH_NUM_discriminator = 20
+PRE_EPOCH_NUM_discriminator = 5
 BATCH_SIZE = 10
 need_generated_samples = 200000
-TOTAL_BATCH = 15
+TOTAL_BATCH = 5
 
 g_lrn = 0.01
 d_lrn = 0.0001
@@ -112,7 +112,7 @@ def main(source_file, wordVocab, vocab_size):
     print ("generated_num: ", generated_num)
     gen_data_loader.create_batches(train_dir + positive_file)
 
-    with tf.variable_scope("Train", reuse=None):
+    with tf.variable_scope("Train" + source_file, reuse=None):
         generator = Generator(wordVocab,
                               vocab_size,
                               BATCH_SIZE,
@@ -178,7 +178,7 @@ def main(source_file, wordVocab, vocab_size):
                 }
                 _ = sess.run(discriminator.train_op, feed)
 
-    with tf.variable_scope("Train", reuse=None):
+    with tf.variable_scope("Train" + source_file, reuse=None):
         g_beta = ROLLOUT(generator, 0.8)  ## 这是表示 g_beta
 
     # todo:  3.############## Adversarial Training ##############
@@ -196,7 +196,7 @@ def main(source_file, wordVocab, vocab_size):
 
         # Test
         if total_batch % 10 == 0 or total_batch == TOTAL_BATCH - 1:
-            buffer = 'epoch:\t' + str(total_batch) + '\tg_loss:\t' + str(g_loss) + '\n'
+            buffer = 'epoch:\t' + str(total_batch) + '\tg_loss:\t' + str(g_loss)
             print (buffer)
             sys.stdout.flush()
             log.write(buffer)
