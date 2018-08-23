@@ -9,13 +9,14 @@ from generator import Generator
 from discriminator import Discriminator
 from rollout import ROLLOUT
 import vocab_utils
+import os
 
 #########################################################################################
 PRE_EPOCH_NUM_generator = 30  # supervised (maximum likelihood estimation) epochs
 PRE_EPOCH_NUM_discriminator = 30
 BATCH_SIZE = 10
 need_generated_samples = 200000
-TOTAL_BATCH = 20
+TOTAL_BATCH = 50
 
 g_lrn = 0.01
 d_lrn = 0.0001
@@ -111,6 +112,7 @@ def main(source_file, wordVocab, vocab_size):
                                                               wordVocab,
                                                               SEQ_LENGTH)
     print ("generated_num: ", generated_num)
+    if generated_num < 100: return
     gen_data_loader.create_batches(train_dir + positive_file)
 
     with tf.variable_scope("Train", reuse=None):
@@ -232,20 +234,18 @@ def main(source_file, wordVocab, vocab_size):
                      BATCH_SIZE,
                      need_generated_samples,
                      negative_file)
-    transform_file(negative_file, wordVocab, out_negative_file + str(generated_num) + ".txt")
+    transform_file(negative_file, wordVocab, source_file + ".GEN")
 
 
 if __name__ == '__main__':
-    source_file = ["data/1.txt", "data/2.txt", "data/3.txt",
-                   "data/4.txt", "data/5.txt", "data/6.txt",
-                   "data/7.txt", "data/8.txt", "data/9.txt",
-                   "data/10.txt", "data/11.txt"]
+    path = "data/all_2/"
+    fileList = os.listdir(path)
     print ("start loading vocab...")
     wordVocab = vocab_utils.Vocab()
     wordVocab.fromText_format3(train_dir, "data/wordvec.vec")
     vocab_size = wordVocab.vocab_size
     print ("vocab_size: ", vocab_size)
 
-    for file in source_file:
-        print (file)
-        main(file, wordVocab, vocab_size)
+    for file in fileList:
+        print (path + file)
+        main(path + file, wordVocab, vocab_size)
