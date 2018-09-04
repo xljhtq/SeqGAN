@@ -5,9 +5,9 @@ import numpy as np
 import tensorflow as tf
 import random
 from dataloader import Gen_Data_loader, Dis_dataloader
-from generator import Generator
+from generator_op import Generator
 from discriminator import Discriminator
-from rollout import ROLLOUT
+from rollout_op import ROLLOUT
 import vocab_utils
 import os
 
