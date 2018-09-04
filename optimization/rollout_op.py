@@ -95,7 +95,7 @@ class ROLLOUT(object):
                 feed = {discriminator.input_x: samples,
                         discriminator.dropout_keep_prob: 1.0}
                 ypred_for_auc = sess.run(discriminator.ypred_for_auc, feed)
-                ypred = np.array([item[1] for item in ypred_for_auc])
+                ypred = np.array([item[0] for item in ypred_for_auc])
                 if i == 0:
                     rewards.append(ypred)
                 else:
@@ -104,7 +104,7 @@ class ROLLOUT(object):
             # the last token reward
             feed = {discriminator.input_x: input_x, discriminator.dropout_keep_prob: 1.0}
             ypred_for_auc = sess.run(discriminator.ypred_for_auc, feed)
-            ypred = np.array([item[1] for item in ypred_for_auc])
+            ypred = np.array([item[0] for item in ypred_for_auc])
             if i == 0:
                 rewards.append(ypred)
             else:
@@ -112,7 +112,7 @@ class ROLLOUT(object):
                 rewards[self.sequence_length - 1] += ypred
 
         rewards = np.transpose(np.array(rewards)) / (1.0 * rollout_num)  # batch_size x seq_length
-        return 1 - rewards
+        return rewards
 
     def create_recurrent_unit(self):
         # Weights and Bias for input and hidden tensor
